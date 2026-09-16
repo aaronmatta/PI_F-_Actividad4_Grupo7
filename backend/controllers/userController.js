@@ -113,7 +113,43 @@ const actualizarMiPerfil = async (req, res) => {
     }
 };
 
+const obtenerUsuarioPorRegistro = async (req, res) => {
+    try {
+        const { registro_academico } = req.params;
+
+        const [usuarios] = await pool.query(
+            `SELECT
+                id_usuario,
+                registro_academico,
+                nombres,
+                apellidos,
+                fecha_creacion
+            FROM usuarios
+            WHERE registro_academico = ?`,
+            [registro_academico]
+        );
+
+        if (usuarios.length === 0) {
+            return res.status(404).json({
+                mensaje: 'Usuario no encontrado'
+            });
+        }
+
+        res.status(200).json({
+            usuario: usuarios[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: 'Error interno del servidor'
+        });
+    }
+};
+
 module.exports = {
     obtenerMiPerfil,
-    actualizarMiPerfil
+    actualizarMiPerfil,
+    obtenerUsuarioPorRegistro
 };

@@ -6,6 +6,7 @@ const pool = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const courseRoutes = require('./routes/courseRoutes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/courses', courseRoutes);
 
 app.get('/', (req, res) => {
     res.json({
