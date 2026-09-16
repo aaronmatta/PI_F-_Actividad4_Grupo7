@@ -1,7 +1,8 @@
 const express = require('express');
 
 const {
-    obtenerMiPerfil
+    obtenerMiPerfil,
+    actualizarMiPerfil
 } = require('../controllers/userController');
 
 const {
@@ -11,5 +12,6 @@ const {
 const router = express.Router();
 
 router.get('/me', verificarToken, obtenerMiPerfil);
+router.put('/me', verificarToken, actualizarMiPerfil);
 
 module.exports = router;
