@@ -89,8 +89,59 @@ const obtenerCatedraticoPorId = async (req, res) => {
     }
 };
 
+const crearCatedratico = async (req, res) => {
+    try {
+        const {
+            nombres,
+            apellidos
+        } = req.body;
+
+        if (!nombres || !apellidos) {
+            return res.status(400).json({
+                mensaje: 'Nombres y apellidos son obligatorios'
+            });
+        }
+
+        const [resultado] = await pool.query(
+            `INSERT INTO catedraticos
+            (
+                nombres,
+                apellidos
+            )
+            VALUES (?, ?)`,
+            [
+                nombres.trim(),
+                apellidos.trim()
+            ]
+        );
+
+        const [catedraticos] = await pool.query(
+            `SELECT
+                id_catedratico,
+                nombres,
+                apellidos,
+                fecha_creacion
+            FROM catedraticos
+            WHERE id_catedratico = ?`,
+            [resultado.insertId]
+        );
+
+        res.status(201).json({
+            mensaje: 'Catedrático creado correctamente',
+            catedratico: catedraticos[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: 'Error interno del servidor'
+        });
+    }
+};
 
 module.exports = {
     obtenerCatedraticos,
-    obtenerCatedraticoPorId
+    obtenerCatedraticoPorId,
+    crearCatedratico
 };
