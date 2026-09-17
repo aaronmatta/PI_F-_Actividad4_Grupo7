@@ -5,7 +5,8 @@ const procesarRespuesta = async (response) => {
 
   if (!response.ok) {
     throw new Error(
-      data.mensaje || 'Ocurrió un error al comunicarse con el servidor'
+      data.mensaje ||
+      'Ocurrió un error al comunicarse con el servidor'
     );
   }
 
@@ -21,6 +22,34 @@ export const registrarUsuario = async (datosUsuario) => {
     },
 
     body: JSON.stringify(datosUsuario),
+  });
+
+  return procesarRespuesta(response);
+};
+
+export const iniciarSesion = async (credenciales) => {
+  const response = await fetch(`${API_URL}/login`, {
+    method: 'POST',
+
+    headers: {
+      'Content-Type': 'application/json',
+    },
+
+    body: JSON.stringify(credenciales),
+  });
+
+  return procesarRespuesta(response);
+};
+
+export const recuperarContrasena = async (datosRecuperacion) => {
+  const response = await fetch(`${API_URL}/recover-password`, {
+    method: 'POST',
+
+    headers: {
+      'Content-Type': 'application/json',
+    },
+
+    body: JSON.stringify(datosRecuperacion),
   });
 
   return procesarRespuesta(response);

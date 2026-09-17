@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { recuperarContrasena } from '../services/authService';
 import './Login.css';
 
 function RecuperarContrasena() {
+  const navigate = useNavigate();
+
   const [registroAcademico, setRegistroAcademico] = useState('');
   const [correoElectronico, setCorreoElectronico] = useState('');
   const [nuevaContrasena, setNuevaContrasena] = useState('');
@@ -10,12 +13,14 @@ function RecuperarContrasena() {
 
   const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState('');
+  const [errorServidor, setErrorServidor] = useState('');
+  const [cargando, setCargando] = useState(false);
 
   const validarCorreo = (correo) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nuevosErrores = {};
@@ -48,21 +53,50 @@ function RecuperarContrasena() {
 
     setErrores(nuevosErrores);
     setMensaje('');
+    setErrorServidor('');
 
     if (Object.keys(nuevosErrores).length > 0) {
       return;
     }
 
-    setMensaje(
-      'Datos válidos. La recuperación se conectará al servidor en el siguiente paso.'
-    );
+    try {
+      setCargando(true);
+
+      const respuesta = await recuperarContrasena({
+        registro_academico: registroAcademico.trim(),
+        correo_electronico: correoElectronico.trim(),
+        nueva_contrasena: nuevaContrasena,
+      });
+
+      setMensaje(respuesta.mensaje);
+
+      setRegistroAcademico('');
+      setCorreoElectronico('');
+      setNuevaContrasena('');
+      setConfirmarContrasena('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+
+    } catch (error) {
+      setErrorServidor(error.message);
+
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
     <main className="auth-page">
+
       <section className="auth-card">
+
         <div className="auth-header">
-          <div className="university-icon">FI</div>
+
+          <div className="university-icon">
+            FI
+          </div>
 
           <div>
             <p className="university-name">
@@ -73,18 +107,26 @@ function RecuperarContrasena() {
               Facultad de Ingeniería
             </p>
           </div>
+
         </div>
 
         <div className="auth-content">
-          <h1>Recuperar contraseña</h1>
+
+          <h1>
+            Recuperar contraseña
+          </h1>
 
           <p className="auth-description">
             Verifica tus datos y establece una nueva contraseña.
           </p>
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+          >
 
             <div className="form-group">
+
               <label htmlFor="registroAcademico">
                 Registro académico
               </label>
@@ -93,15 +135,20 @@ function RecuperarContrasena() {
                 id="registroAcademico"
                 type="text"
                 placeholder="Ej. 202300000"
+
                 value={registroAcademico}
+
                 onChange={(event) =>
                   setRegistroAcademico(event.target.value)
                 }
+
                 className={
                   errores.registroAcademico
                     ? 'input-error'
                     : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.registroAcademico && (
@@ -109,9 +156,11 @@ function RecuperarContrasena() {
                   {errores.registroAcademico}
                 </span>
               )}
+
             </div>
 
             <div className="form-group">
+
               <label htmlFor="correoElectronico">
                 Correo electrónico
               </label>
@@ -120,15 +169,20 @@ function RecuperarContrasena() {
                 id="correoElectronico"
                 type="email"
                 placeholder="ejemplo@correo.com"
+
                 value={correoElectronico}
+
                 onChange={(event) =>
                   setCorreoElectronico(event.target.value)
                 }
+
                 className={
                   errores.correoElectronico
                     ? 'input-error'
                     : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.correoElectronico && (
@@ -136,9 +190,11 @@ function RecuperarContrasena() {
                   {errores.correoElectronico}
                 </span>
               )}
+
             </div>
 
             <div className="form-group">
+
               <label htmlFor="nuevaContrasena">
                 Nueva contraseña
               </label>
@@ -147,15 +203,20 @@ function RecuperarContrasena() {
                 id="nuevaContrasena"
                 type="password"
                 placeholder="Ingresa tu nueva contraseña"
+
                 value={nuevaContrasena}
+
                 onChange={(event) =>
                   setNuevaContrasena(event.target.value)
                 }
+
                 className={
                   errores.nuevaContrasena
                     ? 'input-error'
                     : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.nuevaContrasena && (
@@ -163,9 +224,11 @@ function RecuperarContrasena() {
                   {errores.nuevaContrasena}
                 </span>
               )}
+
             </div>
 
             <div className="form-group">
+
               <label htmlFor="confirmarContrasena">
                 Confirmar nueva contraseña
               </label>
@@ -174,15 +237,20 @@ function RecuperarContrasena() {
                 id="confirmarContrasena"
                 type="password"
                 placeholder="Vuelve a escribir la contraseña"
+
                 value={confirmarContrasena}
+
                 onChange={(event) =>
                   setConfirmarContrasena(event.target.value)
                 }
+
                 className={
                   errores.confirmarContrasena
                     ? 'input-error'
                     : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.confirmarContrasena && (
@@ -190,13 +258,19 @@ function RecuperarContrasena() {
                   {errores.confirmarContrasena}
                 </span>
               )}
+
             </div>
 
             <button
               type="submit"
               className="primary-button"
+              disabled={cargando}
             >
-              Actualizar contraseña
+              {
+                cargando
+                  ? 'Actualizando...'
+                  : 'Actualizar contraseña'
+              }
             </button>
 
             {mensaje && (
@@ -204,18 +278,30 @@ function RecuperarContrasena() {
                 {mensaje}
               </div>
             )}
+
+            {errorServidor && (
+              <div className="server-error-message">
+                {errorServidor}
+              </div>
+            )}
+
           </form>
 
           <div className="register-section">
+
             <Link
               to="/login"
               className="text-link"
             >
               ← Volver al inicio de sesión
             </Link>
+
           </div>
+
         </div>
+
       </section>
+
     </main>
   );
 }

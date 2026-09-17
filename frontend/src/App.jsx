@@ -7,15 +7,26 @@ import {
 
 import Login from './pages/Login';
 import Registro from './pages/Registro';
-import RecuperarContrasena from './pages/RecuperarContrasena';
+import RecuperarContrasena
+  from './pages/RecuperarContrasena';
+
+import InicioTemporal
+  from './pages/InicioTemporal';
 
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
+
         <Route
           path="/"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
         />
 
         <Route
@@ -30,14 +41,28 @@ function App() {
 
         <Route
           path="/recuperar-contrasena"
-          element={<RecuperarContrasena />}
+          element={
+            <RecuperarContrasena />
+          }
+        />
+
+        <Route
+          path="/inicio"
+          element={<InicioTemporal />}
         />
 
         <Route
           path="*"
-          element={<Navigate to="/login" replace />}
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
         />
+
       </Routes>
+
     </BrowserRouter>
   );
 }

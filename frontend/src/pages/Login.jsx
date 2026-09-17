@@ -1,16 +1,36 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { iniciarSesion } from '../services/authService';
 import './Login.css';
 
 function Login() {
-  const [registroAcademico, setRegistroAcademico] = useState('');
-  const [contrasena, setContrasena] = useState('');
-  const [recordarUsuario, setRecordarUsuario] = useState(false);
+  const navigate = useNavigate();
 
-  const [errores, setErrores] = useState({});
-  const [mensaje, setMensaje] = useState('');
+  const registroGuardado =
+    localStorage.getItem('registro_recordado') || '';
 
-  const handleSubmit = (event) => {
+  const [registroAcademico, setRegistroAcademico] =
+    useState(registroGuardado);
+
+  const [contrasena, setContrasena] =
+    useState('');
+
+  const [recordarUsuario, setRecordarUsuario] =
+    useState(Boolean(registroGuardado));
+
+  const [errores, setErrores] =
+    useState({});
+
+  const [mensaje, setMensaje] =
+    useState('');
+
+  const [errorServidor, setErrorServidor] =
+    useState('');
+
+  const [cargando, setCargando] =
+    useState(false);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nuevosErrores = {};
@@ -27,21 +47,82 @@ function Login() {
 
     setErrores(nuevosErrores);
     setMensaje('');
+    setErrorServidor('');
 
     if (Object.keys(nuevosErrores).length > 0) {
       return;
     }
 
-    setMensaje(
-      'Datos válidos. La conexión con el servidor se realizará en el siguiente paso.'
-    );
+    try {
+      setCargando(true);
+
+      const respuesta = await iniciarSesion({
+        registro_academico:
+          registroAcademico.trim(),
+
+        contrasena:
+          contrasena,
+      });
+
+      /*
+        Guardamos el token que devuelve el backend.
+        Lo necesitaremos para acceder a funciones
+        protegidas del sistema.
+      */
+      localStorage.setItem(
+        'token',
+        respuesta.token
+      );
+
+      /*
+        Guardamos también información básica
+        del usuario que inició sesión.
+      */
+      localStorage.setItem(
+        'usuario',
+        JSON.stringify(respuesta.usuario)
+      );
+
+      /*
+        Si el usuario marcó "Recordar usuario",
+        guardamos únicamente el registro académico.
+      */
+      if (recordarUsuario) {
+        localStorage.setItem(
+          'registro_recordado',
+          registroAcademico.trim()
+        );
+      } else {
+        localStorage.removeItem(
+          'registro_recordado'
+        );
+      }
+
+      setMensaje(respuesta.mensaje);
+      setContrasena('');
+
+      setTimeout(() => {
+        navigate('/inicio');
+      }, 1000);
+
+    } catch (error) {
+      setErrorServidor(error.message);
+
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
     <main className="auth-page">
+
       <section className="auth-card">
+
         <div className="auth-header">
-          <div className="university-icon">FI</div>
+
+          <div className="university-icon">
+            FI
+          </div>
 
           <div>
             <p className="university-name">
@@ -52,17 +133,27 @@ function Login() {
               Facultad de Ingeniería
             </p>
           </div>
+
         </div>
 
         <div className="auth-content">
-          <h1>Iniciar sesión</h1>
+
+          <h1>
+            Iniciar sesión
+          </h1>
 
           <p className="auth-description">
-            Ingresa tus datos para acceder al foro académico.
+            Ingresa tus datos para acceder
+            al foro académico.
           </p>
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+          >
+
             <div className="form-group">
+
               <label htmlFor="registroAcademico">
                 Registro académico
               </label>
@@ -71,13 +162,22 @@ function Login() {
                 id="registroAcademico"
                 type="text"
                 placeholder="Ej. 202300000"
+
                 value={registroAcademico}
+
                 onChange={(event) =>
-                  setRegistroAcademico(event.target.value)
+                  setRegistroAcademico(
+                    event.target.value
+                  )
                 }
+
                 className={
-                  errores.registroAcademico ? 'input-error' : ''
+                  errores.registroAcademico
+                    ? 'input-error'
+                    : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.registroAcademico && (
@@ -85,9 +185,11 @@ function Login() {
                   {errores.registroAcademico}
                 </span>
               )}
+
             </div>
 
             <div className="form-group">
+
               <label htmlFor="contrasena">
                 Contraseña
               </label>
@@ -96,13 +198,22 @@ function Login() {
                 id="contrasena"
                 type="password"
                 placeholder="Ingresa tu contraseña"
+
                 value={contrasena}
+
                 onChange={(event) =>
-                  setContrasena(event.target.value)
+                  setContrasena(
+                    event.target.value
+                  )
                 }
+
                 className={
-                  errores.contrasena ? 'input-error' : ''
+                  errores.contrasena
+                    ? 'input-error'
+                    : ''
                 }
+
+                disabled={cargando}
               />
 
               {errores.contrasena && (
@@ -110,19 +221,27 @@ function Login() {
                   {errores.contrasena}
                 </span>
               )}
+
             </div>
 
             <div className="form-options">
+
               <label className="remember-option">
+
                 <input
                   type="checkbox"
+
                   checked={recordarUsuario}
+
                   onChange={(event) =>
-                    setRecordarUsuario(event.target.checked)
+                    setRecordarUsuario(
+                      event.target.checked
+                    )
                   }
                 />
 
                 Recordar usuario
+
               </label>
 
               <Link
@@ -131,13 +250,19 @@ function Login() {
               >
                 ¿Olvidó su contraseña?
               </Link>
+
             </div>
 
             <button
               className="primary-button"
               type="submit"
+              disabled={cargando}
             >
-              Iniciar sesión
+              {
+                cargando
+                  ? 'Iniciando sesión...'
+                  : 'Iniciar sesión'
+              }
             </button>
 
             {mensaje && (
@@ -145,10 +270,20 @@ function Login() {
                 {mensaje}
               </div>
             )}
+
+            {errorServidor && (
+              <div className="server-error-message">
+                {errorServidor}
+              </div>
+            )}
+
           </form>
 
           <div className="register-section">
-            <span>¿No tienes una cuenta?</span>
+
+            <span>
+              ¿No tienes una cuenta?
+            </span>
 
             <Link
               to="/registro"
@@ -156,18 +291,15 @@ function Login() {
             >
               Registrarse
             </Link>
+
           </div>
+
         </div>
+
       </section>
+
     </main>
   );
 }
 
-
-
-
-
-
-
 export default Login;
-
