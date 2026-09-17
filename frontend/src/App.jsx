@@ -13,6 +13,14 @@ import RecuperarContrasena
 import Inicio
   from './pages/Inicio';
 
+import CrearPublicacion
+  from './pages/CrearPublicacion';
+
+
+import DetallePublicacion
+  from './pages/DetallePublicacion';
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -49,6 +57,16 @@ function App() {
         <Route
           path="/inicio"
           element={<Inicio />}
+        />
+
+        <Route
+          path="/publicaciones/crear"
+          element={<CrearPublicacion />}
+        />
+
+        <Route
+          path="/publicaciones/:id"
+          element={<DetallePublicacion />}
         />
 
         <Route

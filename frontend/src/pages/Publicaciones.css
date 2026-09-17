@@ -1,0 +1,383 @@
+/* ========================================
+   MÓDULO DE PUBLICACIONES
+   Integrante 5
+======================================== */
+
+.crear-publicacion-page,
+.detalle-publicacion-page {
+  min-height: 100vh;
+  padding: 35px 0 60px;
+
+  background: #f4f6f9;
+  color: #1d2939;
+}
+
+.crear-publicacion-container,
+.detalle-publicacion-container {
+  width: min(750px, 92%);
+  margin: 0 auto;
+}
+
+
+/* ========================================
+   BOTÓN VOLVER
+======================================== */
+
+.crear-publicacion-container > button,
+.detalle-publicacion-container > button {
+  margin-bottom: 22px;
+  padding: 9px 14px;
+
+  border: 1px solid #24589c;
+  border-radius: 6px;
+
+  background: white;
+  color: #24589c;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.crear-publicacion-container > button:hover,
+.detalle-publicacion-container > button:hover {
+  background: #eef4ff;
+}
+
+
+/* ========================================
+   CREAR PUBLICACIÓN
+======================================== */
+
+.crear-publicacion-container > h1 {
+  margin: 0 0 7px;
+
+  color: #1d2939;
+  font-size: 26px;
+}
+
+.crear-publicacion-container > p {
+  margin: 0 0 24px;
+
+  color: #667085;
+  font-size: 14px;
+}
+
+.crear-publicacion-container form {
+  padding: 25px;
+
+  background: white;
+
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.crear-publicacion-container form > div {
+  margin-bottom: 20px;
+}
+
+.crear-publicacion-container label,
+.form-comentario label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.crear-publicacion-container select,
+.crear-publicacion-container textarea,
+.form-comentario textarea {
+  width: 100%;
+  padding: 11px 12px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 7px;
+
+  background: white;
+  color: #344054;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.crear-publicacion-container select:focus,
+.crear-publicacion-container textarea:focus,
+.form-comentario textarea:focus {
+  border-color: #24589c;
+
+  box-shadow:
+    0 0 0 3px rgba(36, 88, 156, 0.1);
+}
+
+.crear-publicacion-container textarea,
+.form-comentario textarea {
+  resize: vertical;
+}
+
+.crear-publicacion-container form > button,
+.form-comentario button {
+  padding: 11px 18px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #173d72;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.crear-publicacion-container form > button:hover,
+.form-comentario button:hover {
+  background: #24589c;
+}
+
+.crear-publicacion-container form > button:disabled,
+.form-comentario button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* ========================================
+   MENSAJES
+======================================== */
+
+.estado-carga,
+.estado-error,
+.estado-exito {
+  margin-bottom: 18px;
+  padding: 14px;
+
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+
+  background: white;
+
+  font-size: 14px;
+}
+
+.estado-error {
+  border-color: #fecdca;
+
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.estado-exito {
+  border-color: #abefc6;
+
+  background: #ecfdf3;
+  color: #067647;
+}
+
+
+/* ========================================
+   DETALLE DE PUBLICACIÓN
+======================================== */
+
+.detalle-publicacion-card {
+  padding: 25px;
+
+  background: white;
+
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.detalle-publicacion-card
+.publicacion-header {
+  display: flex;
+  align-items: center;
+}
+
+.detalle-publicacion-card
+.publicacion-header h2 {
+  margin: 0;
+
+  color: #1d2939;
+  font-size: 17px;
+}
+
+.detalle-publicacion-card
+.publicacion-header span {
+  display: block;
+  margin-top: 4px;
+
+  color: #98a2b3;
+  font-size: 12px;
+}
+
+.detalle-publicacion-card
+.publicacion-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 17px;
+}
+
+.detalle-publicacion-card .tag {
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  background: #eef4ff;
+  color: #173d72;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detalle-publicacion-card
+.tag-secondary {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.detalle-publicacion-card
+.publicacion-mensaje {
+  margin: 20px 0 0;
+
+  color: #344054;
+
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+
+/* ========================================
+   COMENTARIOS
+======================================== */
+
+.seccion-comentarios {
+  margin-top: 22px;
+  padding: 25px;
+
+  background: white;
+
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.seccion-comentarios > h2 {
+  margin: 0 0 20px;
+
+  color: #1d2939;
+  font-size: 19px;
+}
+
+.lista-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-bottom: 24px;
+}
+
+.comentario {
+  padding: 15px;
+
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+
+  background: #f9fafb;
+}
+
+.comentario-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 8px;
+}
+
+.comentario-encabezado strong {
+  color: #344054;
+  font-size: 13px;
+}
+
+.comentario-encabezado span {
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.comentario p {
+  margin: 0;
+
+  color: #475467;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   FORMULARIO DE COMENTARIO
+======================================== */
+
+.form-comentario {
+  padding-top: 20px;
+
+  border-top: 1px solid #eaecf0;
+}
+
+.form-comentario textarea {
+  margin-bottom: 12px;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 700px) {
+
+  .crear-publicacion-page,
+  .detalle-publicacion-page {
+    padding-top: 25px;
+  }
+
+  .crear-publicacion-container,
+  .detalle-publicacion-container {
+    width: 94%;
+  }
+
+  .crear-publicacion-container > h1 {
+    font-size: 22px;
+  }
+
+  .crear-publicacion-container form,
+  .detalle-publicacion-card,
+  .seccion-comentarios {
+    padding: 18px;
+  }
+
+  .comentario-encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 4px;
+  }
+}

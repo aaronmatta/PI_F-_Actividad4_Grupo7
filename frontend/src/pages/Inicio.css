@@ -392,3 +392,56 @@
     color: #b42318;
   }
 }
+
+
+
+.publicacion-card[role="button"] {
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.publicacion-card[role="button"]:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.08);
+}
+
+.publicacion-card[role="button"]:focus {
+  outline: 2px solid #24589c;
+  outline-offset: 2px;
+}
+
+
+
+.crear-publicacion-button {
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #173d72;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.crear-publicacion-button:hover {
+  background: #24589c;
+}
+
+@media (max-width: 700px) {
+
+  .inicio-intro {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 15px;
+  }
+}

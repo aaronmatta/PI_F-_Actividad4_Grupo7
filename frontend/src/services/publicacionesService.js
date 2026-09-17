@@ -96,3 +96,85 @@ export const obtenerCatedraticos =
 
     return procesarRespuesta(response);
   };
+
+
+export const crearPublicacion =
+  async (publicacion) => {
+
+    const response = await fetch(
+      `${API_URL}/posts`,
+      {
+        method: 'POST',
+
+        headers: {
+          ...crearHeaders(),
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify(
+          publicacion
+        )
+      }
+    );
+
+    return procesarRespuesta(response);
+  };
+
+
+  export const obtenerPublicacionPorId =
+  async (idPublicacion) => {
+
+    const response = await fetch(
+      `${API_URL}/posts/${idPublicacion}`,
+      {
+        method: 'GET',
+        headers: crearHeaders()
+      }
+    );
+
+    return procesarRespuesta(response);
+  };
+
+
+export const obtenerComentarios =
+  async (idPublicacion) => {
+
+    const response = await fetch(
+      `${API_URL}/posts/${idPublicacion}/comments`,
+      {
+        method: 'GET',
+        headers: crearHeaders()
+      }
+    );
+
+    return procesarRespuesta(response);
+  };
+
+
+  
+export const crearComentario =
+  async (
+    idPublicacion,
+    comentario
+  ) => {
+
+    const response = await fetch(
+      `${API_URL}/posts/${idPublicacion}/comments`,
+      {
+        method: 'POST',
+
+        headers: {
+          ...crearHeaders(),
+          'Content-Type':
+            'application/json'
+        },
+
+        body: JSON.stringify({
+          comentario
+        })
+      }
+    );
+
+    return procesarRespuesta(response);
+  };

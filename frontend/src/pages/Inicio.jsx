@@ -225,8 +225,7 @@ function Inicio() {
 
         const nombreCatedraticoReal =
           publicacion.catedratico
-            ? `${publicacion.catedratico.nombres || ''} ${
-                publicacion.catedratico.apellidos || ''
+            ? `${publicacion.catedratico.nombres || ''} ${publicacion.catedratico.apellidos || ''
               }`.trim()
             : '';
 
@@ -378,6 +377,16 @@ function Inicio() {
             </p>
 
           </div>
+
+          <button
+            type="button"
+            className="crear-publicacion-button"
+            onClick={() =>
+              navigate('/publicaciones/crear')
+            }
+          >
+            Crear publicación
+          </button>
 
         </section>
 
@@ -604,6 +613,23 @@ function Inicio() {
                           publicacion
                             .id_publicacion
                         }
+                        onClick={() =>
+                          navigate(
+                            `/publicaciones/${publicacion.id_publicacion}`
+                          )
+                        }
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(event) => {
+                          if (
+                            event.key === 'Enter' ||
+                            event.key === ' '
+                          ) {
+                            navigate(
+                              `/publicaciones/${publicacion.id_publicacion}`
+                            );
+                          }
+                        }}
                       >
 
                         <div className="publicacion-header">
