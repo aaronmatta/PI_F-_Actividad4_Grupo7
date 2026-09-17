@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { registrarUsuario } from '../services/authService';
 import './Login.css';
 
 function Registro() {
+  const navigate = useNavigate();
+
   const [registroAcademico, setRegistroAcademico] = useState('');
   const [nombres, setNombres] = useState('');
   const [apellidos, setApellidos] = useState('');
@@ -12,12 +15,14 @@ function Registro() {
 
   const [errores, setErrores] = useState({});
   const [mensaje, setMensaje] = useState('');
+  const [errorServidor, setErrorServidor] = useState('');
+  const [cargando, setCargando] = useState(false);
 
   const validarCorreo = (correo) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nuevosErrores = {};
@@ -60,14 +65,40 @@ function Registro() {
 
     setErrores(nuevosErrores);
     setMensaje('');
+    setErrorServidor('');
 
     if (Object.keys(nuevosErrores).length > 0) {
       return;
     }
 
-    setMensaje(
-      'Datos válidos. El registro se conectará al servidor en el siguiente paso.'
-    );
+    try {
+      setCargando(true);
+
+      const respuesta = await registrarUsuario({
+        registro_academico: registroAcademico.trim(),
+        nombres: nombres.trim(),
+        apellidos: apellidos.trim(),
+        contrasena: contrasena,
+        correo_electronico: correoElectronico.trim(),
+      });
+
+      setMensaje(respuesta.mensaje);
+
+      setRegistroAcademico('');
+      setNombres('');
+      setApellidos('');
+      setCorreoElectronico('');
+      setContrasena('');
+      setConfirmarContrasena('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (error) {
+      setErrorServidor(error.message);
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -110,10 +141,9 @@ function Registro() {
                   setRegistroAcademico(event.target.value)
                 }
                 className={
-                  errores.registroAcademico
-                    ? 'input-error'
-                    : ''
+                  errores.registroAcademico ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.registroAcademico && (
@@ -137,10 +167,9 @@ function Registro() {
                   setNombres(event.target.value)
                 }
                 className={
-                  errores.nombres
-                    ? 'input-error'
-                    : ''
+                  errores.nombres ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.nombres && (
@@ -164,10 +193,9 @@ function Registro() {
                   setApellidos(event.target.value)
                 }
                 className={
-                  errores.apellidos
-                    ? 'input-error'
-                    : ''
+                  errores.apellidos ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.apellidos && (
@@ -191,10 +219,9 @@ function Registro() {
                   setCorreoElectronico(event.target.value)
                 }
                 className={
-                  errores.correoElectronico
-                    ? 'input-error'
-                    : ''
+                  errores.correoElectronico ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.correoElectronico && (
@@ -218,10 +245,9 @@ function Registro() {
                   setContrasena(event.target.value)
                 }
                 className={
-                  errores.contrasena
-                    ? 'input-error'
-                    : ''
+                  errores.contrasena ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.contrasena && (
@@ -245,10 +271,9 @@ function Registro() {
                   setConfirmarContrasena(event.target.value)
                 }
                 className={
-                  errores.confirmarContrasena
-                    ? 'input-error'
-                    : ''
+                  errores.confirmarContrasena ? 'input-error' : ''
                 }
+                disabled={cargando}
               />
 
               {errores.confirmarContrasena && (
@@ -261,13 +286,20 @@ function Registro() {
             <button
               type="submit"
               className="primary-button"
+              disabled={cargando}
             >
-              Registrarse
+              {cargando ? 'Registrando...' : 'Registrarse'}
             </button>
 
             {mensaje && (
               <div className="success-message">
                 {mensaje}
+              </div>
+            )}
+
+            {errorServidor && (
+              <div className="server-error-message">
+                {errorServidor}
               </div>
             )}
           </form>
