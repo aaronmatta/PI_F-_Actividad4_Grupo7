@@ -8,8 +8,15 @@ const {
     verificarToken
 } = require('../middleware/authMiddleware');
 
+
 const router = express.Router();
 
-router.get('/', verificarToken, obtenerCursos);
+
+router.get(
+    '/',
+    verificarToken,
+    obtenerCursos
+);
+
 
 module.exports = router;

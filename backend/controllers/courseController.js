@@ -2,15 +2,67 @@ const pool = require('../config/db');
 
 const obtenerCursos = async (req, res) => {
     try {
-        const [cursos] = await pool.query(
-            `SELECT
+        const {
+            search,
+            semestre
+        } = req.query;
+
+        let sql = `
+            SELECT
                 id_curso,
                 codigo,
                 nombre,
                 creditos,
                 semestre
             FROM cursos
-            ORDER BY semestre ASC, codigo ASC`
+            WHERE 1 = 1
+        `;
+
+        const parametros = [];
+
+        if (search) {
+            sql += `
+                AND (
+                    codigo LIKE ?
+                    OR nombre LIKE ?
+                )
+            `;
+
+            const busqueda = `%${search}%`;
+
+            parametros.push(
+                busqueda,
+                busqueda
+            );
+        }
+
+        if (semestre) {
+            const numeroSemestre = Number(semestre);
+
+            if (
+                !Number.isInteger(numeroSemestre) ||
+                numeroSemestre < 1 ||
+                numeroSemestre > 10
+            ) {
+                return res.status(400).json({
+                    mensaje: 'Semestre inválido'
+                });
+            }
+
+            sql += `
+                AND semestre = ?
+            `;
+
+            parametros.push(numeroSemestre);
+        }
+
+        sql += `
+            ORDER BY semestre ASC, codigo ASC
+        `;
+
+        const [cursos] = await pool.query(
+            sql,
+            parametros
         );
 
         res.status(200).json({
@@ -26,6 +78,7 @@ const obtenerCursos = async (req, res) => {
         });
     }
 };
+
 
 module.exports = {
     obtenerCursos
