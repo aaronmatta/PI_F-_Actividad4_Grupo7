@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil de Usuario - Foro Ingenieria</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #e9ecef; color: #212529; padding-bottom: 50px; }
+    
+    /* Header idéntico a tu pantalla */
+    .inicio-header { 
+      background: #1c3b70; 
+      color: white; 
+      padding: 14px 40px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+    .header-logo { 
+      background: white; 
+      color: #1c3b70; 
+      font-weight: 700; 
+      font-size: 16px; 
+      width: 42px; 
+      height: 42px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .header-brand h1 { font-size: 18px; font-weight: 700; }
+    .header-brand p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+    .header-user { display: flex; align-items: center; gap: 16px; font-size: 13px; }
+    .logout-button { 
+      background: rgba(255, 255, 255, 0.1); 
+      border: 1px solid rgba(255, 255, 255, 0.4); 
+      color: white; 
+      padding: 6px 14px; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 12px; 
+    }
+    
+    .inicio-container { max-width: 950px; margin: 30px auto; padding: 0 20px; }
+    
+    .inicio-intro h2 { font-size: 22px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+    .inicio-intro p { font-size: 13px; color: #4a5568; margin-bottom: 22px; }
+    
+    /* Paneles estilo Inicio.jsx */
+    .panel-card { 
+      background: #f8fafc; 
+      border: 1px solid #dcdfe4; 
+      border-radius: 8px; 
+      padding: 24px; 
+      margin-bottom: 24px; 
+    }
+    .panel-card h3 { font-size: 15px; font-weight: 700; color: #2d3748; margin-bottom: 16px; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: #4a5568; }
+    .form-group input { 
+      padding: 9px 12px; 
+      border: 1px solid #cbd5e0; 
+      border-radius: 6px; 
+      font-size: 13px; 
+      background: white; 
+      color: #333; 
+    }
+    .form-group input:disabled { background: #edf2f7; color: #718096; }
+    
+    .btn-action { 
+      background: #1c3b70; 
+      color: white; 
+      border: none; 
+      padding: 9px 20px; 
+      border-radius: 6px; 
+      font-size: 13px; 
+      font-weight: 600; 
+      cursor: pointer; 
+    }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; background: white; border-radius: 6px; overflow: hidden; border: 1px solid #e2e8f0; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #edf2f7; }
+    th { background: #edf2f7; color: #4a5568; font-weight: 600; font-size: 12px; }
+    
+    .creditos-badge { 
+      display: inline-block; 
+      background: #e6fffa; 
+      color: #234e52; 
+      border: 1px solid #b2f5ea; 
+      font-weight: 700; 
+      font-size: 13px; 
+      padding: 8px 14px; 
+      border-radius: 6px; 
+      margin-top: 14px; 
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header idéntico -->
+  <header class="inicio-header">
+    <div class="header-brand">
+      <div class="header-logo">FI</div>
+      <div>
+        <h1>Foro Ingenieria</h1>
+        <p>Facultad de Ingenieria - USAC</p>
+      </div>
+    </div>
+    <div class="header-user">
+      <span>Hola, Jeni</span>
+      <button class="logout-button">Cerrar sesion</button>
+    </div>
+  </header>
+
+  <main class="inicio-container">
+
+    <section class="inicio-intro">
+      <h2>Mi Perfil Académico</h2>
+      <p>Gestiona tu información personal, consulta tu historial de cursos y busca otros estudiantes.</p>
+    </section>
+
+    <!-- Módulo 4: Perfil de Usuario -->
+    <section class="panel-card">
+      <h3>Datos del Estudiante</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Registro académico / Carnet</label>
+          <input type="text" value="202100123" disabled>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" value="estudiante@ingenieria.usac.edu.gt">
+        </div>
+        <div class="form-group">
+          <label>Nombres</label>
+          <input type="text" value="Jeni">
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" value="Gómez">
+        </div>
+      </div>
+      <button class="btn-action">Guardar cambios</button>
+    </section>
+
+    <!-- Módulo 5: Cursos Aprobados y Créditos -->
+    <section class="panel-card">
+      <h3>Control de Cursos Aprobados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre del Curso</th>
+            <th>Créditos</th>
+            <th>Semestre</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0770</td>
+            <td>Introducción a la Programación y Computación 1</td>
+            <td>4</td>
+            <td>1er Semestre 2024</td>
+          </tr>
+          <tr>
+            <td>0771</td>
+            <td>Introducción a la Programación y Computación 2</td>
+            <td>5</td>
+            <td>2do Semestre 2024</td>
+          </tr>
+          <tr>
+            <td>0960</td>
+            <td>Matemática para Computación 1</td>
+            <td>5</td>
+            <td>1er Semestre 2024</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="creditos-badge">Total acumulado: 14 créditos</div>
+    </section>
+
+    <!-- Módulo 6: Búsqueda por Carnet -->
+    <section class="panel-card">
+      <h3>Buscar Estudiante por Carnet</h3>
+      <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+        <input type="text" placeholder="Ej. 202009876" style="flex: 1; padding: 9px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px;">
+        <button class="btn-action">Consultar</button>
+      </div>
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px;">
+        <p style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 4px;">Carlos René Martínez López</p>
+        <p style="font-size: 12px; color: #718096;">Carnet: 202009876 | Créditos acumulados: 48 | Opiniones registradas: 3</p>
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>
