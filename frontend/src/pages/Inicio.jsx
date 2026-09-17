@@ -1,173 +1,262 @@
-import { useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import {
+  useEffect,
+  useState
+} from 'react';
+
+import {
+  Navigate,
+  useNavigate
+} from 'react-router-dom';
+
 import './Inicio.css';
+
+import {
+  obtenerCatedraticos,
+  obtenerCursos,
+  obtenerPublicaciones
+} from '../services/publicacionesService';
 
 function Inicio() {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
-  const usuarioGuardado = localStorage.getItem('usuario');
+  const token =
+    localStorage.getItem('token');
 
-  const [busqueda, setBusqueda] = useState('');
-  const [cursoSeleccionado, setCursoSeleccionado] = useState('');
-  const [catedraticoSeleccionado, setCatedraticoSeleccionado] =
+  const usuarioGuardado =
+    localStorage.getItem('usuario');
+
+  // -----------------------------
+  // Estados de filtros
+  // -----------------------------
+
+  const [busqueda, setBusqueda] =
     useState('');
-  const [nombreCurso, setNombreCurso] = useState('');
-  const [nombreCatedratico, setNombreCatedratico] = useState('');
 
+  const [
+    cursoSeleccionado,
+    setCursoSeleccionado
+  ] = useState('');
+
+  const [
+    catedraticoSeleccionado,
+    setCatedraticoSeleccionado
+  ] = useState('');
+
+  const [
+    nombreCurso,
+    setNombreCurso
+  ] = useState('');
+
+  const [
+    nombreCatedratico,
+    setNombreCatedratico
+  ] = useState('');
+
+  // -----------------------------
+  // Datos obtenidos del backend
+  // -----------------------------
+
+  const [
+    publicaciones,
+    setPublicaciones
+  ] = useState([]);
+
+  const [
+    cursos,
+    setCursos
+  ] = useState([]);
+
+  const [
+    catedraticos,
+    setCatedraticos
+  ] = useState([]);
+
+  const [
+    cargando,
+    setCargando
+  ] = useState(true);
+
+  const [
+    errorCarga,
+    setErrorCarga
+  ] = useState('');
+
+  // -----------------------------
+  // Cargar información del backend
+  // -----------------------------
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setCargando(true);
+        setErrorCarga('');
+
+        const [
+          respuestaPublicaciones,
+          respuestaCursos,
+          respuestaCatedraticos
+        ] = await Promise.all([
+          obtenerPublicaciones(),
+          obtenerCursos(),
+          obtenerCatedraticos()
+        ]);
+
+        setPublicaciones(
+          respuestaPublicaciones.publicaciones || []
+        );
+
+        setCursos(
+          respuestaCursos.cursos || []
+        );
+
+        setCatedraticos(
+          respuestaCatedraticos.catedraticos || []
+        );
+
+      } catch (error) {
+        setErrorCarga(error.message);
+
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    if (token) {
+      cargarDatos();
+    }
+  }, [token]);
+
+  // -----------------------------
+  // Obtener usuario autenticado
+  // -----------------------------
 
   let usuario = null;
 
   if (usuarioGuardado) {
     try {
-      usuario = JSON.parse(usuarioGuardado);
+      usuario =
+        JSON.parse(usuarioGuardado);
+
     } catch {
       usuario = null;
     }
   }
 
-  /*
-    Datos temporales.
-    Más adelante serán obtenidos desde el backend.
-  */
-  const publicaciones = useMemo(() => [
-    {
-      id: 1,
-      usuario: 'Carlos López',
-      curso: 'Sistemas Operativos 1',
-      catedratico: 'Ing. Juan Pérez',
-      mensaje:
-        '¿Qué tal es el curso y qué recomendaciones tienen para llevarlo?',
-      fecha: '2026-09-16T20:30:00',
-    },
-    {
-      id: 2,
-      usuario: 'Andrea Morales',
-      curso: 'Bases de Datos 1',
-      catedratico: 'Ing. María González',
-      mensaje:
-        'El curso requiere bastante práctica. Recomiendo llevar al día los laboratorios.',
-      fecha: '2026-09-16T18:10:00',
-    },
-    {
-      id: 3,
-      usuario: 'Luis Hernández',
-      curso: 'Lenguajes Formales',
-      catedratico: 'Ing. Roberto Castillo',
-      mensaje:
-        '¿Alguien ha llevado este curso con este catedrático? Me gustaría conocer opiniones.',
-      fecha: '2026-09-15T21:45:00',
-    },
-    {
-      id: 4,
-      usuario: 'María García',
-      curso: 'Introducción a la Programación 2',
-      catedratico: 'Ing. Ana Ramírez',
-      mensaje:
-        'Muy importante practicar bastante estructuras de datos y programación.',
-      fecha: '2026-09-14T15:20:00',
-    },
-  ], []);
-
-  /*
-    Obtenemos los cursos disponibles
-    sin repetir nombres.
-  */
-  const cursos = useMemo(() => {
-    return [
-      ...new Set(
-        publicaciones.map(
-          (publicacion) => publicacion.curso
-        )
-      ),
-    ];
-  }, [publicaciones]);
-
-  /*
-    Obtenemos los catedráticos disponibles
-    sin repetir nombres.
-  */
-  const catedraticos = useMemo(() => {
-    return [
-      ...new Set(
-        publicaciones.map(
-          (publicacion) => publicacion.catedratico
-        )
-      ),
-    ];
-  }, [publicaciones]);
+  // -----------------------------
+  // Proteger la pantalla
+  // -----------------------------
 
   if (!token) {
     return (
       <Navigate
         to="/login"
         replace
-       />
-      );
-    }
-
-  /*
-    Aplicamos todos los filtros.
-  */
-  const publicacionesFiltradas = publicaciones
-    .filter((publicacion) => {
-      const textoBusqueda =
-        busqueda.trim().toLowerCase();
-
-      const coincideBusqueda =
-        !textoBusqueda ||
-        publicacion.mensaje
-          .toLowerCase()
-          .includes(textoBusqueda) ||
-        publicacion.curso
-          .toLowerCase()
-          .includes(textoBusqueda) ||
-        publicacion.catedratico
-          .toLowerCase()
-          .includes(textoBusqueda) ||
-        publicacion.usuario
-          .toLowerCase()
-          .includes(textoBusqueda);
-
-      const coincideCurso =
-        !cursoSeleccionado ||
-        publicacion.curso === cursoSeleccionado;
-
-      const coincideCatedratico =
-        !catedraticoSeleccionado ||
-        publicacion.catedratico ===
-          catedraticoSeleccionado;
-
-      const coincideNombreCurso =
-        !nombreCurso.trim() ||
-        publicacion.curso
-          .toLowerCase()
-          .includes(
-            nombreCurso.trim().toLowerCase()
-          );
-
-      const coincideNombreCatedratico =
-        !nombreCatedratico.trim() ||
-        publicacion.catedratico
-          .toLowerCase()
-          .includes(
-            nombreCatedratico
-              .trim()
-              .toLowerCase()
-          );
-
-      return (
-        coincideBusqueda &&
-        coincideCurso &&
-        coincideCatedratico &&
-        coincideNombreCurso &&
-        coincideNombreCatedratico
-      );
-    })
-    .sort(
-      (a, b) =>
-        new Date(b.fecha) - new Date(a.fecha)
+      />
     );
+  }
+
+  // -----------------------------
+  // Aplicar filtros
+  // -----------------------------
+
+  const publicacionesFiltradas =
+    publicaciones
+      .filter((publicacion) => {
+
+        const textoBusqueda =
+          busqueda
+            .trim()
+            .toLowerCase();
+
+        const nombreAutor =
+          `${publicacion.autor?.nombres || ''} ${
+            publicacion.autor?.apellidos || ''
+          }`
+            .trim()
+            .toLowerCase();
+
+        const nombreCursoReal =
+          publicacion.curso?.nombre || '';
+
+        const nombreCatedraticoReal =
+          publicacion.catedratico
+            ? `${publicacion.catedratico.nombres || ''} ${
+                publicacion.catedratico.apellidos || ''
+              }`.trim()
+            : '';
+
+        const mensaje =
+          publicacion.mensaje || '';
+
+        const coincideBusqueda =
+          !textoBusqueda ||
+          mensaje
+            .toLowerCase()
+            .includes(textoBusqueda) ||
+          nombreCursoReal
+            .toLowerCase()
+            .includes(textoBusqueda) ||
+          nombreCatedraticoReal
+            .toLowerCase()
+            .includes(textoBusqueda) ||
+          nombreAutor
+            .includes(textoBusqueda);
+
+        const coincideCurso =
+          !cursoSeleccionado ||
+          String(
+            publicacion.curso?.id_curso
+          ) === cursoSeleccionado;
+
+        const coincideCatedratico =
+          !catedraticoSeleccionado ||
+          String(
+            publicacion
+              .catedratico
+              ?.id_catedratico
+          ) === catedraticoSeleccionado;
+
+        const coincideNombreCurso =
+          !nombreCurso.trim() ||
+          nombreCursoReal
+            .toLowerCase()
+            .includes(
+              nombreCurso
+                .trim()
+                .toLowerCase()
+            );
+
+        const coincideNombreCatedratico =
+          !nombreCatedratico.trim() ||
+          nombreCatedraticoReal
+            .toLowerCase()
+            .includes(
+              nombreCatedratico
+                .trim()
+                .toLowerCase()
+            );
+
+        return (
+          coincideBusqueda &&
+          coincideCurso &&
+          coincideCatedratico &&
+          coincideNombreCurso &&
+          coincideNombreCatedratico
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(
+            b.fecha_publicacion
+          ) -
+          new Date(
+            a.fecha_publicacion
+          )
+      );
+
+  // -----------------------------
+  // Limpiar filtros
+  // -----------------------------
 
   const limpiarFiltros = () => {
     setBusqueda('');
@@ -177,6 +266,10 @@ function Inicio() {
     setNombreCatedratico('');
   };
 
+  // -----------------------------
+  // Cerrar sesión
+  // -----------------------------
+
   const cerrarSesion = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
@@ -184,15 +277,29 @@ function Inicio() {
     navigate('/login');
   };
 
+  // -----------------------------
+  // Formatear fecha
+  // -----------------------------
+
   const formatearFecha = (fecha) => {
-    return new Date(fecha).toLocaleString(
+    if (!fecha) {
+      return 'Fecha no disponible';
+    }
+
+    return new Date(
+      fecha
+    ).toLocaleString(
       'es-GT',
       {
         dateStyle: 'medium',
-        timeStyle: 'short',
+        timeStyle: 'short'
       }
     );
   };
+
+  // -----------------------------
+  // Interfaz
+  // -----------------------------
 
   return (
     <div className="inicio-page">
@@ -242,17 +349,22 @@ function Inicio() {
         <section className="inicio-intro">
 
           <div>
+
             <h2>
               Publicaciones recientes
             </h2>
 
             <p>
-              Consulta opiniones sobre cursos y
-              catedráticos de la Facultad de Ingeniería.
+              Consulta opiniones sobre cursos
+              y catedráticos de la Facultad
+              de Ingeniería.
             </p>
+
           </div>
 
         </section>
+
+        {/* FILTROS */}
 
         <section className="filtros-panel">
 
@@ -268,13 +380,17 @@ function Inicio() {
               placeholder="Buscar por curso, catedrático, usuario o publicación..."
               value={busqueda}
               onChange={(event) =>
-                setBusqueda(event.target.value)
+                setBusqueda(
+                  event.target.value
+                )
               }
             />
 
           </div>
 
           <div className="filtros-grid">
+
+            {/* FILTRO CURSO */}
 
             <div className="filtro-grupo">
 
@@ -291,21 +407,29 @@ function Inicio() {
                   )
                 }
               >
+
                 <option value="">
                   Todos los cursos
                 </option>
 
                 {cursos.map((curso) => (
                   <option
-                    key={curso}
-                    value={curso}
+                    key={curso.id_curso}
+                    value={String(
+                      curso.id_curso
+                    )}
                   >
-                    {curso}
+                    {curso.codigo}
+                    {' - '}
+                    {curso.nombre}
                   </option>
                 ))}
+
               </select>
 
             </div>
+
+            {/* FILTRO CATEDRATICO */}
 
             <div className="filtro-grupo">
 
@@ -315,30 +439,46 @@ function Inicio() {
 
               <select
                 id="filtroCatedratico"
-                value={catedraticoSeleccionado}
+                value={
+                  catedraticoSeleccionado
+                }
                 onChange={(event) =>
                   setCatedraticoSeleccionado(
                     event.target.value
                   )
                 }
               >
+
                 <option value="">
                   Todos los catedráticos
                 </option>
 
                 {catedraticos.map(
                   (catedratico) => (
+
                     <option
-                      key={catedratico}
-                      value={catedratico}
+                      key={
+                        catedratico
+                          .id_catedratico
+                      }
+                      value={String(
+                        catedratico
+                          .id_catedratico
+                      )}
                     >
-                      {catedratico}
+                      {catedratico.nombres}
+                      {' '}
+                      {catedratico.apellidos}
                     </option>
+
                   )
                 )}
+
               </select>
 
             </div>
+
+            {/* NOMBRE CURSO */}
 
             <div className="filtro-grupo">
 
@@ -360,6 +500,8 @@ function Inicio() {
 
             </div>
 
+            {/* NOMBRE CATEDRATICO */}
+
             <div className="filtro-grupo">
 
               <label htmlFor="nombreCatedratico">
@@ -369,7 +511,7 @@ function Inicio() {
               <input
                 id="nombreCatedratico"
                 type="text"
-                placeholder="Ej. María González"
+                placeholder="Ej. Juan Pérez"
                 value={nombreCatedratico}
                 onChange={(event) =>
                   setNombreCatedratico(
@@ -385,7 +527,9 @@ function Inicio() {
           <div className="filtros-footer">
 
             <span>
-              {publicacionesFiltradas.length}
+              {
+                publicacionesFiltradas.length
+              }
               {' '}
               publicación(es) encontrada(s)
             </span>
@@ -402,97 +546,197 @@ function Inicio() {
 
         </section>
 
-        <section className="feed">
+        {/* CARGANDO */}
 
-          {publicacionesFiltradas.length > 0 ? (
+        {cargando && (
+          <div className="estado-carga">
+            Cargando publicaciones...
+          </div>
+        )}
 
-            publicacionesFiltradas.map(
-              (publicacion) => (
+        {/* ERROR */}
 
-                <article
-                  className="publicacion-card"
-                  key={publicacion.id}
-                >
+        {errorCarga && (
+          <div className="estado-error">
+            {errorCarga}
+          </div>
+        )}
 
-                  <div className="publicacion-header">
+        {/* FEED */}
 
-                    <div className="avatar">
-                      {publicacion.usuario
-                        .charAt(0)
-                        .toUpperCase()}
-                    </div>
+        {!cargando && !errorCarga && (
+          <section className="feed">
 
-                    <div>
+            {
+              publicacionesFiltradas.length > 0
+                ? (
 
-                      <h3>
-                        {publicacion.usuario}
-                      </h3>
+                  publicacionesFiltradas.map(
+                    (publicacion) => (
 
-                      <span className="fecha-publicacion">
-                        {formatearFecha(
-                          publicacion.fecha
-                        )}
-                      </span>
+                      <article
+                        className="publicacion-card"
+                        key={
+                          publicacion
+                            .id_publicacion
+                        }
+                      >
 
-                    </div>
+                        <div className="publicacion-header">
+
+                          <div className="avatar">
+
+                            {
+                              publicacion
+                                .autor
+                                ?.nombres
+                                ?.charAt(0)
+                                .toUpperCase()
+                              || 'U'
+                            }
+
+                          </div>
+
+                          <div>
+
+                            <h3>
+                              {
+                                publicacion.autor
+                                  ? `${publicacion.autor.nombres} ${publicacion.autor.apellidos}`
+                                  : 'Usuario'
+                              }
+                            </h3>
+
+                            <span className="fecha-publicacion">
+
+                              {
+                                formatearFecha(
+                                  publicacion
+                                    .fecha_publicacion
+                                )
+                              }
+
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                        {/* ETIQUETAS */}
+
+                        <div className="publicacion-tags">
+
+                          {
+                            publicacion.curso && (
+                              <span className="tag">
+
+                                {
+                                  publicacion
+                                    .curso
+                                    .codigo
+                                }
+
+                                {' - '}
+
+                                {
+                                  publicacion
+                                    .curso
+                                    .nombre
+                                }
+
+                              </span>
+                            )
+                          }
+
+                          {
+                            publicacion
+                              .catedratico && (
+
+                              <span className="tag tag-secondary">
+
+                                {
+                                  publicacion
+                                    .catedratico
+                                    .nombres
+                                }
+
+                                {' '}
+
+                                {
+                                  publicacion
+                                    .catedratico
+                                    .apellidos
+                                }
+
+                              </span>
+
+                            )
+                          }
+
+                        </div>
+
+                        {/* MENSAJE */}
+
+                        <p className="publicacion-mensaje">
+
+                          {
+                            publicacion.mensaje
+                          }
+
+                        </p>
+
+                        {/* COMENTARIOS */}
+
+                        <div className="publicacion-footer">
+
+                          <span>
+                            💬
+                            {' '}
+                            {
+                              publicacion
+                                .total_comentarios
+                              || 0
+                            }
+                            {' '}
+                            comentario(s)
+                          </span>
+
+                        </div>
+
+                      </article>
+
+                    )
+                  )
+
+                )
+                : (
+
+                  <div className="sin-resultados">
+
+                    <h3>
+                      No se encontraron publicaciones
+                    </h3>
+
+                    <p>
+                      Prueba cambiando o eliminando
+                      alguno de los filtros.
+                    </p>
+
+                    <button
+                      type="button"
+                      className="limpiar-button"
+                      onClick={limpiarFiltros}
+                    >
+                      Limpiar filtros
+                    </button>
 
                   </div>
 
-                  <div className="publicacion-tags">
+                )
+            }
 
-                    <span className="tag">
-                      {publicacion.curso}
-                    </span>
-
-                    <span className="tag tag-secondary">
-                      {publicacion.catedratico}
-                    </span>
-
-                  </div>
-
-                  <p className="publicacion-mensaje">
-                    {publicacion.mensaje}
-                  </p>
-
-                  <div className="publicacion-footer">
-
-                    <span>
-                      💬 Ver comentarios
-                    </span>
-
-                  </div>
-
-                </article>
-
-              )
-            )
-
-          ) : (
-
-            <div className="sin-resultados">
-
-              <h3>
-                No se encontraron publicaciones
-              </h3>
-
-              <p>
-                Prueba cambiando o eliminando
-                alguno de los filtros.
-              </p>
-
-              <button
-                type="button"
-                className="limpiar-button"
-                onClick={limpiarFiltros}
-              >
-                Limpiar filtros
-              </button>
-
-            </div>
-
-          )}
-
-        </section>
+          </section>
+        )}
 
       </main>
 
