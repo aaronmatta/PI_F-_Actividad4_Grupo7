@@ -10,8 +10,8 @@ import Registro from './pages/Registro';
 import RecuperarContrasena
   from './pages/RecuperarContrasena';
 
-import InicioTemporal
-  from './pages/InicioTemporal';
+import Inicio
+  from './pages/Inicio';
 
 function App() {
   return (
@@ -48,7 +48,7 @@ function App() {
 
         <Route
           path="/inicio"
-          element={<InicioTemporal />}
+          element={<Inicio />}
         />
 
         <Route
