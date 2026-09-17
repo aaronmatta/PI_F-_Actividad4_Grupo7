@@ -23,23 +23,10 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/prueba-db', async (req, res) => {
-    try {
-        const [resultado] = await pool.query(
-            'SELECT * FROM usuarios'
-        );
-
-        res.json({
-            mensaje: 'Consulta realizada correctamente',
-            usuarios: resultado
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            mensaje: 'Error al consultar la base de datos',
-            error: error.message
-        });
-    }
+app.get('/', (req, res) => {
+    res.json({
+        mensaje: 'Backend funcionando correctamente'
+    });
 });
 
 const PORT = process.env.PORT || 3000;
