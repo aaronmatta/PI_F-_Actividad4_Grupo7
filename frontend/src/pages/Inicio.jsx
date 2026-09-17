@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import './Inicio.css';
 
@@ -8,14 +8,13 @@ function Inicio() {
   const token = localStorage.getItem('token');
   const usuarioGuardado = localStorage.getItem('usuario');
 
-  if (!token) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-      />
-    );
-  }
+  const [busqueda, setBusqueda] = useState('');
+  const [cursoSeleccionado, setCursoSeleccionado] = useState('');
+  const [catedraticoSeleccionado, setCatedraticoSeleccionado] =
+    useState('');
+  const [nombreCurso, setNombreCurso] = useState('');
+  const [nombreCatedratico, setNombreCatedratico] = useState('');
+
 
   let usuario = null;
 
@@ -28,9 +27,8 @@ function Inicio() {
   }
 
   /*
-    Estas publicaciones son únicamente datos de prueba.
-    Más adelante serán reemplazadas por información
-    obtenida desde el backend.
+    Datos temporales.
+    Más adelante serán obtenidos desde el backend.
   */
   const publicaciones = useMemo(() => [
     {
@@ -72,13 +70,112 @@ function Inicio() {
   ], []);
 
   /*
-    Ordenamos por fecha:
-    publicación más reciente primero.
+    Obtenemos los cursos disponibles
+    sin repetir nombres.
   */
-  const publicacionesOrdenadas = [...publicaciones].sort(
-    (a, b) =>
-      new Date(b.fecha) - new Date(a.fecha)
-  );
+  const cursos = useMemo(() => {
+    return [
+      ...new Set(
+        publicaciones.map(
+          (publicacion) => publicacion.curso
+        )
+      ),
+    ];
+  }, [publicaciones]);
+
+  /*
+    Obtenemos los catedráticos disponibles
+    sin repetir nombres.
+  */
+  const catedraticos = useMemo(() => {
+    return [
+      ...new Set(
+        publicaciones.map(
+          (publicacion) => publicacion.catedratico
+        )
+      ),
+    ];
+  }, [publicaciones]);
+
+  if (!token) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+       />
+      );
+    }
+
+  /*
+    Aplicamos todos los filtros.
+  */
+  const publicacionesFiltradas = publicaciones
+    .filter((publicacion) => {
+      const textoBusqueda =
+        busqueda.trim().toLowerCase();
+
+      const coincideBusqueda =
+        !textoBusqueda ||
+        publicacion.mensaje
+          .toLowerCase()
+          .includes(textoBusqueda) ||
+        publicacion.curso
+          .toLowerCase()
+          .includes(textoBusqueda) ||
+        publicacion.catedratico
+          .toLowerCase()
+          .includes(textoBusqueda) ||
+        publicacion.usuario
+          .toLowerCase()
+          .includes(textoBusqueda);
+
+      const coincideCurso =
+        !cursoSeleccionado ||
+        publicacion.curso === cursoSeleccionado;
+
+      const coincideCatedratico =
+        !catedraticoSeleccionado ||
+        publicacion.catedratico ===
+          catedraticoSeleccionado;
+
+      const coincideNombreCurso =
+        !nombreCurso.trim() ||
+        publicacion.curso
+          .toLowerCase()
+          .includes(
+            nombreCurso.trim().toLowerCase()
+          );
+
+      const coincideNombreCatedratico =
+        !nombreCatedratico.trim() ||
+        publicacion.catedratico
+          .toLowerCase()
+          .includes(
+            nombreCatedratico
+              .trim()
+              .toLowerCase()
+          );
+
+      return (
+        coincideBusqueda &&
+        coincideCurso &&
+        coincideCatedratico &&
+        coincideNombreCurso &&
+        coincideNombreCatedratico
+      );
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.fecha) - new Date(a.fecha)
+    );
+
+  const limpiarFiltros = () => {
+    setBusqueda('');
+    setCursoSeleccionado('');
+    setCatedraticoSeleccionado('');
+    setNombreCurso('');
+    setNombreCatedratico('');
+  };
 
   const cerrarSesion = () => {
     localStorage.removeItem('token');
@@ -103,6 +200,7 @@ function Inicio() {
       <header className="inicio-header">
 
         <div className="header-brand">
+
           <div className="header-logo">
             FI
           </div>
@@ -116,6 +214,7 @@ function Inicio() {
               Facultad de Ingeniería - USAC
             </p>
           </div>
+
         </div>
 
         <div className="header-user">
@@ -155,65 +254,242 @@ function Inicio() {
 
         </section>
 
+        <section className="filtros-panel">
+
+          <div className="busqueda-principal">
+
+            <label htmlFor="busqueda">
+              Buscar publicaciones
+            </label>
+
+            <input
+              id="busqueda"
+              type="text"
+              placeholder="Buscar por curso, catedrático, usuario o publicación..."
+              value={busqueda}
+              onChange={(event) =>
+                setBusqueda(event.target.value)
+              }
+            />
+
+          </div>
+
+          <div className="filtros-grid">
+
+            <div className="filtro-grupo">
+
+              <label htmlFor="filtroCurso">
+                Filtrar por curso
+              </label>
+
+              <select
+                id="filtroCurso"
+                value={cursoSeleccionado}
+                onChange={(event) =>
+                  setCursoSeleccionado(
+                    event.target.value
+                  )
+                }
+              >
+                <option value="">
+                  Todos los cursos
+                </option>
+
+                {cursos.map((curso) => (
+                  <option
+                    key={curso}
+                    value={curso}
+                  >
+                    {curso}
+                  </option>
+                ))}
+              </select>
+
+            </div>
+
+            <div className="filtro-grupo">
+
+              <label htmlFor="filtroCatedratico">
+                Filtrar por catedrático
+              </label>
+
+              <select
+                id="filtroCatedratico"
+                value={catedraticoSeleccionado}
+                onChange={(event) =>
+                  setCatedraticoSeleccionado(
+                    event.target.value
+                  )
+                }
+              >
+                <option value="">
+                  Todos los catedráticos
+                </option>
+
+                {catedraticos.map(
+                  (catedratico) => (
+                    <option
+                      key={catedratico}
+                      value={catedratico}
+                    >
+                      {catedratico}
+                    </option>
+                  )
+                )}
+              </select>
+
+            </div>
+
+            <div className="filtro-grupo">
+
+              <label htmlFor="nombreCurso">
+                Nombre del curso
+              </label>
+
+              <input
+                id="nombreCurso"
+                type="text"
+                placeholder="Ej. Bases de Datos"
+                value={nombreCurso}
+                onChange={(event) =>
+                  setNombreCurso(
+                    event.target.value
+                  )
+                }
+              />
+
+            </div>
+
+            <div className="filtro-grupo">
+
+              <label htmlFor="nombreCatedratico">
+                Nombre del catedrático
+              </label>
+
+              <input
+                id="nombreCatedratico"
+                type="text"
+                placeholder="Ej. María González"
+                value={nombreCatedratico}
+                onChange={(event) =>
+                  setNombreCatedratico(
+                    event.target.value
+                  )
+                }
+              />
+
+            </div>
+
+          </div>
+
+          <div className="filtros-footer">
+
+            <span>
+              {publicacionesFiltradas.length}
+              {' '}
+              publicación(es) encontrada(s)
+            </span>
+
+            <button
+              type="button"
+              className="limpiar-button"
+              onClick={limpiarFiltros}
+            >
+              Limpiar filtros
+            </button>
+
+          </div>
+
+        </section>
+
         <section className="feed">
 
-          {publicacionesOrdenadas.map(
-            (publicacion) => (
+          {publicacionesFiltradas.length > 0 ? (
 
-              <article
-                className="publicacion-card"
-                key={publicacion.id}
-              >
+            publicacionesFiltradas.map(
+              (publicacion) => (
 
-                <div className="publicacion-header">
+                <article
+                  className="publicacion-card"
+                  key={publicacion.id}
+                >
 
-                  <div className="avatar">
-                    {publicacion.usuario
-                      .charAt(0)
-                      .toUpperCase()}
+                  <div className="publicacion-header">
+
+                    <div className="avatar">
+                      {publicacion.usuario
+                        .charAt(0)
+                        .toUpperCase()}
+                    </div>
+
+                    <div>
+
+                      <h3>
+                        {publicacion.usuario}
+                      </h3>
+
+                      <span className="fecha-publicacion">
+                        {formatearFecha(
+                          publicacion.fecha
+                        )}
+                      </span>
+
+                    </div>
+
                   </div>
 
-                  <div>
-                    <h3>
-                      {publicacion.usuario}
-                    </h3>
+                  <div className="publicacion-tags">
 
-                    <span className="fecha-publicacion">
-                      {formatearFecha(
-                        publicacion.fecha
-                      )}
+                    <span className="tag">
+                      {publicacion.curso}
                     </span>
+
+                    <span className="tag tag-secondary">
+                      {publicacion.catedratico}
+                    </span>
+
                   </div>
 
-                </div>
+                  <p className="publicacion-mensaje">
+                    {publicacion.mensaje}
+                  </p>
 
-                <div className="publicacion-tags">
+                  <div className="publicacion-footer">
 
-                  <span className="tag">
-                    {publicacion.curso}
-                  </span>
+                    <span>
+                      💬 Ver comentarios
+                    </span>
 
-                  <span className="tag tag-secondary">
-                    {publicacion.catedratico}
-                  </span>
+                  </div>
 
-                </div>
+                </article>
 
-                <p className="publicacion-mensaje">
-                  {publicacion.mensaje}
-                </p>
-
-                <div className="publicacion-footer">
-
-                  <span>
-                    💬 Ver comentarios
-                  </span>
-
-                </div>
-
-              </article>
-
+              )
             )
+
+          ) : (
+
+            <div className="sin-resultados">
+
+              <h3>
+                No se encontraron publicaciones
+              </h3>
+
+              <p>
+                Prueba cambiando o eliminando
+                alguno de los filtros.
+              </p>
+
+              <button
+                type="button"
+                className="limpiar-button"
+                onClick={limpiarFiltros}
+              >
+                Limpiar filtros
+              </button>
+
+            </div>
+
           )}
 
         </section>
