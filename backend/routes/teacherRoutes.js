@@ -2,7 +2,8 @@ const express = require('express');
 
 const {
     obtenerCatedraticos,
-    obtenerCatedraticoPorId
+    obtenerCatedraticoPorId,
+    crearCatedratico
 } = require('../controllers/teacherController');
 
 const {
@@ -26,5 +27,10 @@ router.get(
     obtenerCatedraticoPorId
 );
 
+router.post(
+    '/',
+    verificarToken,
+    crearCatedratico
+);
 
 module.exports = router;
