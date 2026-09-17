@@ -5,11 +5,8 @@ const obtenerToken = () => {
   return localStorage.getItem('token');
 };
 
-const procesarRespuesta = async (
-  response
-) => {
-  const data =
-    await response.json();
+const procesarRespuesta = async (response) => {
+  const data = await response.json();
 
   if (!response.ok) {
     throw new Error(
@@ -22,62 +19,80 @@ const procesarRespuesta = async (
 };
 
 const crearHeaders = () => {
-  const token =
-    obtenerToken();
+  const token = obtenerToken();
 
   return {
-    Authorization:
-      `Bearer ${token}`
+    Authorization: `Bearer ${token}`
   };
 };
 
 export const obtenerPublicaciones =
-  async () => {
+  async (filtros = {}) => {
 
-    const response =
-      await fetch(
-        `${API_URL}/posts?orden=desc`,
-        {
-          method: 'GET',
-          headers: crearHeaders()
-        }
-      );
+    const parametros =
+      new URLSearchParams();
 
-    return procesarRespuesta(
-      response
+    parametros.set(
+      'orden',
+      'desc'
     );
+
+    if (filtros.id_curso) {
+      parametros.set(
+        'id_curso',
+        filtros.id_curso
+      );
+    }
+
+    if (filtros.id_catedratico) {
+      parametros.set(
+        'id_catedratico',
+        filtros.id_catedratico
+      );
+    }
+
+    if (filtros.search?.trim()) {
+      parametros.set(
+        'search',
+        filtros.search.trim()
+      );
+    }
+
+    const response = await fetch(
+      `${API_URL}/posts?${parametros.toString()}`,
+      {
+        method: 'GET',
+        headers: crearHeaders()
+      }
+    );
+
+    return procesarRespuesta(response);
   };
 
 export const obtenerCursos =
   async () => {
 
-    const response =
-      await fetch(
-        `${API_URL}/courses`,
-        {
-          method: 'GET',
-          headers: crearHeaders()
-        }
-      );
-
-    return procesarRespuesta(
-      response
+    const response = await fetch(
+      `${API_URL}/courses`,
+      {
+        method: 'GET',
+        headers: crearHeaders()
+      }
     );
+
+    return procesarRespuesta(response);
   };
 
 export const obtenerCatedraticos =
   async () => {
 
-    const response =
-      await fetch(
-        `${API_URL}/teachers`,
-        {
-          method: 'GET',
-          headers: crearHeaders()
-        }
-      );
-
-    return procesarRespuesta(
-      response
+    const response = await fetch(
+      `${API_URL}/teachers`,
+      {
+        method: 'GET',
+        headers: crearHeaders()
+      }
     );
+
+    return procesarRespuesta(response);
   };

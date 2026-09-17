@@ -29,8 +29,10 @@ function Inicio() {
   // Estados de filtros
   // -----------------------------
 
-  const [busqueda, setBusqueda] =
-    useState('');
+  const [
+    busqueda,
+    setBusqueda
+  ] = useState('');
 
   const [
     cursoSeleccionado,
@@ -82,28 +84,21 @@ function Inicio() {
   ] = useState('');
 
   // -----------------------------
-  // Cargar información del backend
+  // Cargar cursos y catedraticos
   // -----------------------------
 
   useEffect(() => {
-    const cargarDatos = async () => {
+    const cargarCatalogos = async () => {
       try {
-        setCargando(true);
         setErrorCarga('');
 
         const [
-          respuestaPublicaciones,
           respuestaCursos,
           respuestaCatedraticos
         ] = await Promise.all([
-          obtenerPublicaciones(),
           obtenerCursos(),
           obtenerCatedraticos()
         ]);
-
-        setPublicaciones(
-          respuestaPublicaciones.publicaciones || []
-        );
 
         setCursos(
           respuestaCursos.cursos || []
@@ -114,20 +109,78 @@ function Inicio() {
         );
 
       } catch (error) {
-        setErrorCarga(error.message);
+        setErrorCarga(
+          error.message
+        );
+      }
+    };
+
+    if (token) {
+      cargarCatalogos();
+    }
+  }, [token]);
+
+  // -----------------------------
+  // Cargar publicaciones
+  // -----------------------------
+
+  useEffect(() => {
+    const cargarPublicaciones = async () => {
+      try {
+        setCargando(true);
+        setErrorCarga('');
+
+        const respuesta =
+          await obtenerPublicaciones({
+            id_curso:
+              cursoSeleccionado,
+
+            id_catedratico:
+              catedraticoSeleccionado,
+
+            search:
+              busqueda
+          });
+
+        setPublicaciones(
+          respuesta.publicaciones || []
+        );
+
+      } catch (error) {
+        setErrorCarga(
+          error.message
+        );
 
       } finally {
         setCargando(false);
       }
     };
 
-    if (token) {
-      cargarDatos();
+    if (!token) {
+      return undefined;
     }
-  }, [token]);
+
+    const temporizador =
+      setTimeout(
+        cargarPublicaciones,
+        300
+      );
+
+    return () => {
+      clearTimeout(
+        temporizador
+      );
+    };
+
+  }, [
+    token,
+    busqueda,
+    cursoSeleccionado,
+    catedraticoSeleccionado
+  ]);
 
   // -----------------------------
-  // Obtener usuario autenticado
+  // Obtener usuario guardado
   // -----------------------------
 
   let usuario = null;
@@ -135,7 +188,9 @@ function Inicio() {
   if (usuarioGuardado) {
     try {
       usuario =
-        JSON.parse(usuarioGuardado);
+        JSON.parse(
+          usuarioGuardado
+        );
 
     } catch {
       usuario = null;
@@ -143,7 +198,7 @@ function Inicio() {
   }
 
   // -----------------------------
-  // Proteger la pantalla
+  // Proteger pantalla
   // -----------------------------
 
   if (!token) {
@@ -156,27 +211,17 @@ function Inicio() {
   }
 
   // -----------------------------
-  // Aplicar filtros
+  // Filtros locales
   // -----------------------------
 
   const publicacionesFiltradas =
     publicaciones
       .filter((publicacion) => {
 
-        const textoBusqueda =
-          busqueda
-            .trim()
-            .toLowerCase();
-
-        const nombreAutor =
-          `${publicacion.autor?.nombres || ''} ${
-            publicacion.autor?.apellidos || ''
-          }`
-            .trim()
-            .toLowerCase();
-
         const nombreCursoReal =
-          publicacion.curso?.nombre || '';
+          publicacion
+            .curso
+            ?.nombre || '';
 
         const nombreCatedraticoReal =
           publicacion.catedratico
@@ -184,37 +229,6 @@ function Inicio() {
                 publicacion.catedratico.apellidos || ''
               }`.trim()
             : '';
-
-        const mensaje =
-          publicacion.mensaje || '';
-
-        const coincideBusqueda =
-          !textoBusqueda ||
-          mensaje
-            .toLowerCase()
-            .includes(textoBusqueda) ||
-          nombreCursoReal
-            .toLowerCase()
-            .includes(textoBusqueda) ||
-          nombreCatedraticoReal
-            .toLowerCase()
-            .includes(textoBusqueda) ||
-          nombreAutor
-            .includes(textoBusqueda);
-
-        const coincideCurso =
-          !cursoSeleccionado ||
-          String(
-            publicacion.curso?.id_curso
-          ) === cursoSeleccionado;
-
-        const coincideCatedratico =
-          !catedraticoSeleccionado ||
-          String(
-            publicacion
-              .catedratico
-              ?.id_catedratico
-          ) === catedraticoSeleccionado;
 
         const coincideNombreCurso =
           !nombreCurso.trim() ||
@@ -237,9 +251,6 @@ function Inicio() {
             );
 
         return (
-          coincideBusqueda &&
-          coincideCurso &&
-          coincideCatedratico &&
           coincideNombreCurso &&
           coincideNombreCatedratico
         );
@@ -267,12 +278,17 @@ function Inicio() {
   };
 
   // -----------------------------
-  // Cerrar sesión
+  // Cerrar sesion
   // -----------------------------
 
   const cerrarSesion = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
+    localStorage.removeItem(
+      'token'
+    );
+
+    localStorage.removeItem(
+      'usuario'
+    );
 
     navigate('/login');
   };
@@ -313,13 +329,15 @@ function Inicio() {
           </div>
 
           <div>
+
             <h1>
-              Foro Ingeniería
+              Foro Ingenieria
             </h1>
 
             <p>
-              Facultad de Ingeniería - USAC
+              Facultad de Ingenieria - USAC
             </p>
+
           </div>
 
         </div>
@@ -337,7 +355,7 @@ function Inicio() {
             className="logout-button"
             onClick={cerrarSesion}
           >
-            Cerrar sesión
+            Cerrar sesion
           </button>
 
         </div>
@@ -355,16 +373,15 @@ function Inicio() {
             </h2>
 
             <p>
-              Consulta opiniones sobre cursos
-              y catedráticos de la Facultad
-              de Ingeniería.
+              Consulta opiniones sobre cursos y
+              catedraticos de la Facultad de Ingenieria.
             </p>
 
           </div>
 
         </section>
 
-        {/* FILTROS */}
+        {/* Panel de filtros */}
 
         <section className="filtros-panel">
 
@@ -377,7 +394,7 @@ function Inicio() {
             <input
               id="busqueda"
               type="text"
-              placeholder="Buscar por curso, catedrático, usuario o publicación..."
+              placeholder="Buscar por curso, catedratico, usuario o publicacion..."
               value={busqueda}
               onChange={(event) =>
                 setBusqueda(
@@ -390,7 +407,7 @@ function Inicio() {
 
           <div className="filtros-grid">
 
-            {/* FILTRO CURSO */}
+            {/* Filtro por curso */}
 
             <div className="filtro-grupo">
 
@@ -413,8 +430,11 @@ function Inicio() {
                 </option>
 
                 {cursos.map((curso) => (
+
                   <option
-                    key={curso.id_curso}
+                    key={
+                      curso.id_curso
+                    }
                     value={String(
                       curso.id_curso
                     )}
@@ -423,18 +443,19 @@ function Inicio() {
                     {' - '}
                     {curso.nombre}
                   </option>
+
                 ))}
 
               </select>
 
             </div>
 
-            {/* FILTRO CATEDRATICO */}
+            {/* Filtro por catedratico */}
 
             <div className="filtro-grupo">
 
               <label htmlFor="filtroCatedratico">
-                Filtrar por catedrático
+                Filtrar por catedratico
               </label>
 
               <select
@@ -450,7 +471,7 @@ function Inicio() {
               >
 
                 <option value="">
-                  Todos los catedráticos
+                  Todos los catedraticos
                 </option>
 
                 {catedraticos.map(
@@ -478,7 +499,7 @@ function Inicio() {
 
             </div>
 
-            {/* NOMBRE CURSO */}
+            {/* Nombre del curso */}
 
             <div className="filtro-grupo">
 
@@ -500,19 +521,21 @@ function Inicio() {
 
             </div>
 
-            {/* NOMBRE CATEDRATICO */}
+            {/* Nombre del catedratico */}
 
             <div className="filtro-grupo">
 
               <label htmlFor="nombreCatedratico">
-                Nombre del catedrático
+                Nombre del catedratico
               </label>
 
               <input
                 id="nombreCatedratico"
                 type="text"
-                placeholder="Ej. Juan Pérez"
-                value={nombreCatedratico}
+                placeholder="Ej. Juan Perez"
+                value={
+                  nombreCatedratico
+                }
                 onChange={(event) =>
                   setNombreCatedratico(
                     event.target.value
@@ -531,7 +554,7 @@ function Inicio() {
                 publicacionesFiltradas.length
               }
               {' '}
-              publicación(es) encontrada(s)
+              publicacion(es) encontrada(s)
             </span>
 
             <button
@@ -546,7 +569,7 @@ function Inicio() {
 
         </section>
 
-        {/* CARGANDO */}
+        {/* Estado de carga */}
 
         {cargando && (
           <div className="estado-carga">
@@ -554,7 +577,7 @@ function Inicio() {
           </div>
         )}
 
-        {/* ERROR */}
+        {/* Error */}
 
         {errorCarga && (
           <div className="estado-error">
@@ -562,9 +585,10 @@ function Inicio() {
           </div>
         )}
 
-        {/* FEED */}
+        {/* Feed */}
 
         {!cargando && !errorCarga && (
+
           <section className="feed">
 
             {
@@ -622,12 +646,13 @@ function Inicio() {
 
                         </div>
 
-                        {/* ETIQUETAS */}
+                        {/* Etiquetas */}
 
                         <div className="publicacion-tags">
 
                           {
                             publicacion.curso && (
+
                               <span className="tag">
 
                                 {
@@ -645,6 +670,7 @@ function Inicio() {
                                 }
 
                               </span>
+
                             )
                           }
 
@@ -675,30 +701,23 @@ function Inicio() {
 
                         </div>
 
-                        {/* MENSAJE */}
+                        {/* Mensaje */}
 
                         <p className="publicacion-mensaje">
-
-                          {
-                            publicacion.mensaje
-                          }
-
+                          {publicacion.mensaje}
                         </p>
 
-                        {/* COMENTARIOS */}
+                        {/* Comentarios */}
 
                         <div className="publicacion-footer">
 
                           <span>
-                            💬
-                            {' '}
+                            {'Comentarios: '}
                             {
                               publicacion
                                 .total_comentarios
                               || 0
                             }
-                            {' '}
-                            comentario(s)
                           </span>
 
                         </div>
@@ -736,6 +755,7 @@ function Inicio() {
             }
 
           </section>
+
         )}
 
       </main>
