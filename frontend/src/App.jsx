@@ -7,6 +7,7 @@ import {
 
 import Login from './pages/Login';
 import Registro from './pages/Registro';
+import Perfil from './pages/Perfil';
 import RecuperarContrasena
   from './pages/RecuperarContrasena';
 
@@ -50,7 +51,12 @@ function App() {
           path="/inicio"
           element={<Inicio />}
         />
-
+        
+        <Route
+         path="/perfil"
+         element={<Perfil />}
+        />
+        
         <Route
           path="*"
           element={
