@@ -19,6 +19,7 @@ CREATE TABLE cursos (
     nombre VARCHAR(150) NOT NULL,
     creditos INT NOT NULL
 );
+ALTER TABLE cursos ADD COLUMN semestre INT NOT NULL AFTER creditos;
 
 CREATE TABLE cursos_aprobados (
     id_curso_aprobado INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,7 +41,18 @@ CREATE TABLE cursos_aprobados (
         UNIQUE (id_usuario, id_curso)
 );
 
+INSERT INTO cursos
+(codigo, nombre, creditos, semestre)
+VALUES
+('0116', 'Matemática Aplicada 3', 5, 5),
+('0118', 'Matemática Aplicada 1', 5, 5),
+('0732', 'Estadística 1', 5, 5),
+('0772', 'Estructuras de Datos', 6, 5),
+('0777', 'Organización de Lenguajes y Compiladores 1', 6, 5),
+('0964', 'Organización Computacional', 4, 5);
+
 select * from usuarios;
+select * from cursos;
 show tables;
 describe usuarios;
 describe cursos;

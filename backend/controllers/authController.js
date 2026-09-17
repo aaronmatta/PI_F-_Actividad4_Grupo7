@@ -165,7 +165,77 @@ const iniciarSesion = async (req, res) => {
     }
 };
 
+const recuperarContrasena = async (req, res) => {
+    try {
+        const {
+            registro_academico,
+            correo_electronico,
+            nueva_contrasena
+        } = req.body;
+
+        // Verificar campos
+        if (
+            !registro_academico ||
+            !correo_electronico ||
+            !nueva_contrasena
+        ) {
+            return res.status(400).json({
+                mensaje: 'Todos los campos son obligatorios'
+            });
+        }
+
+        // Buscar coincidencia entre registro y correo
+        const [usuarios] = await pool.query(
+            `SELECT id_usuario
+            FROM usuarios
+            WHERE registro_academico = ?
+            AND correo_electronico = ?`,
+            [
+                registro_academico,
+                correo_electronico
+            ]
+        );
+
+        if (usuarios.length === 0) {
+            return res.status(400).json({
+                mensaje: 'Registro académico o correo electrónico incorrectos'
+            });
+        }
+
+        const usuario = usuarios[0];
+
+        // Cifrar nueva contraseña
+        const contrasenaCifrada = await bcrypt.hash(
+            nueva_contrasena,
+            10
+        );
+
+        // Actualizar contraseña
+        await pool.query(
+            `UPDATE usuarios
+            SET contrasena = ?
+            WHERE id_usuario = ?`,
+            [
+                contrasenaCifrada,
+                usuario.id_usuario
+            ]
+        );
+
+        res.status(200).json({
+            mensaje: 'Contraseña actualizada correctamente'
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: 'Error interno del servidor'
+        });
+    }
+};
+
 module.exports = {
     registrarUsuario,
-    iniciarSesion
+    iniciarSesion,
+    recuperarContrasena
 };
